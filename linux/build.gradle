@@ -37,8 +37,8 @@ ext {
         vcsUrl      : "https://github.com/AdoptOpenJDK/openjdk-jdk${jdkMajorVersion}u",
         iteration   : version,
         license     : "GPL-2.0+CE",
-        maintainer  : "AdoptOpenJDK",
-        vendor      : "AdoptOpenJDK"
+        maintainer  : getVendor(),
+        vendor      : getVendor()
     ]
     artifactory = [
         url       : "https://adoptopenjdk.jfrog.io/adoptopenjdk/",
@@ -87,6 +87,10 @@ def getJdkMajorVersion() {
         throw new IllegalArgumentException("Building packages for JDK $version is not supported")
     }
     return version
+}
+
+def getVendor() {
+    return hasProperty("VENDOR") ? VENDOR : "AdoptOpenJDK"
 }
 
 enum DistributionType {
