@@ -37,12 +37,8 @@ ext {
         rpmIteration: getRPMIteration(),
         license     : "GPL-2.0+CE",
         maintainer  : getVendor(),
-<<<<<<< HEAD
-        vendor      : getVendor()
-=======
         vendor      : getVendor(),
         packageName : "${getPackageName()}-${jdkMajorVersion}-${getJdkVirtualMachine().packageQualifier}${jdkDistributionType.pkgNameSuffix}"
->>>>>>> local_upstream_branch
     ]
     artifactory = [
         url       : "https://adoptopenjdk.jfrog.io/adoptopenjdk/",
