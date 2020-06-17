@@ -1,5 +1,4 @@
 import net.adoptopenjdk.installer.BuildDebianPackage
-import net.adoptopenjdk.installer.BuildVendorDebianPackage
 import net.adoptopenjdk.installer.UploadDebianPackage
 
 ext.jinfoPriorities = [
@@ -28,29 +27,6 @@ tasks.register("buildDebianPackage", BuildDebianPackage) {
     category = "java"
     dependenciesFile = file("config/jdk-${jdkMajorVersion}-${pkgMetadata.vm.configQualifier}${jdkDistributionType.pkgNameSuffix}/dependencies.txt")
     providesFile = file("config/jdk-${jdkMajorVersion}-${pkgMetadata.vm.configQualifier}${jdkDistributionType.pkgNameSuffix}/provides.txt")
-    toolsFile = file("config/jdk-${jdkMajorVersion}-${pkgMetadata.vm.configQualifier}${jdkDistributionType.pkgNameSuffix}/tools.txt")
-    prefix = "/usr/lib/jvm"
-    afterInstallScript = file("config/postinst.sh")
-    beforeRemoveScript = file("config/prerm.sh")
-    jinfoFile = file("config/jinfo")
-    prebuiltJdkDirectory = jdkDistributionDir
-}
-
-tasks.register("buildVendorDebPackage", BuildVendorDebianPackage) {
-    packageName = "openjdk-${jdkMajorVersion}-${pkgMetadata.vm.packageQualifier}"
-    packageVersion = jdkVersion
-    iteration = 2
-    priority = jinfoPriorities[jdkMajorVersion]
-    architecture = pkgMetadata.architecture
-    vm = pkgMetadata.vm
-    maintainer = pkgMetadata.maintainer
-    vendor = pkgMetadata.vendor
-    homepage = pkgMetadata.homepage
-    license = pkgMetadata.license
-    packageDescription = pkgMetadata.description
-    category = "java"
-    dependenciesFile = file("config/jdk-${jdkMajorVersion}-${pkgMetadata.vm.configQualifier}${jdkDistributionType.pkgNameSuffix}/dependencies.txt")
-    providesFile = file("config/jdk-${jdkMajorVersion}-${pkgMetadata.vm.configQualifier}${jdkDistributionType.pkgNameSuffix}/${pkgMetadata.vendor}/provides.txt")
     toolsFile = file("config/jdk-${jdkMajorVersion}-${pkgMetadata.vm.configQualifier}${jdkDistributionType.pkgNameSuffix}/tools.txt")
     prefix = "/usr/lib/jvm"
     afterInstallScript = file("config/postinst.sh")

@@ -1,8 +1,4 @@
 # Purpose: pipeline yml for creating OpenJDK Debian Package
-# Required Variables:
-# JDK_MAJOR_VERSION - eg. 8, 11
-# JDK_VERSION       - eg. 11.0.8+2
-# JDK_VM            - eg. hotspot, openj9
 
 # disable the pipeline trigger until openjdk11Nightly is fixed
 # resources:
@@ -18,7 +14,20 @@ pool:
 
 jobs:
 - job: create_debian_package
-  displayName: "Create OpenJDK Debian Package"
+  displayName: "Create and Upload OpenJDK Debian Package"
+  variables:
+    vendor: 'microsoft'
+    packageName: 'openjdk'
+    jdkMajorVersion: 11
+    jdkDistributionType: 'JDK'
+    jdkVm: 'hotspot'
+    jdkArchitecture: x64
+    vendorHomepage: "https://www.microsoft.com/"
+    sourceUrl: "https://dev.azure.com/ms-juniper/MS-OpenJDK/_git/openjdk-jdk11u"
+    packageIteration: 1
+    azureStorage: "msopenjdkdistro"
+    azureStorageContainer: "msopenjdk-for-cbld"
+
   steps:
   # install fpm, a dependency for creating deb package
   - bash: |
@@ -50,7 +59,7 @@ jobs:
       cd Linux_X64
       jdkVersion=$(ls | grep microsoft-jdk | sed 's/.*jdk-\(.*\)-linux.*/\1/')
       echo "downloaded openJDK with version $(jdkVersion)"
-      echo "##vso[task.setvariable variable=jdk.version]$jdkVersion"
+      echo "##vso[task.setvariable variable=jdk.version]$jdkVersion~microsoft"
     displayName: "Save JDK Version for packaging into variable"
 
   # extract JDK binary
@@ -63,17 +72,19 @@ jobs:
   # creating openjdk debian package
   - bash: |
       cd linux
-      ./gradlew buildVendorDebPackage \
-        -PVENDOR=$(VENDOR) \
-        -PJDK_DISTRIBUTION_TYPE=JDK \
+      ./gradlew buildDebianPackage \
+        -PVENDOR=$(vendor) \
+        -PPACKAGE_NAME=$(packageName) \
+        -PJDK_DISTRIBUTION_TYPE=$(jdkDistributionType) \
         -PJDK_DISTRIBUTION_DIR=$(Pipeline.Workspace)/BuildSrc \
-        -PJDK_MAJOR_VERSION=$(JDK_MAJOR_VERSION) \
+        -PJDK_MAJOR_VERSION=$(jdkMajorVersion) \
         -PJDK_VERSION=$(jdk.version) \
-        -PJDK_VM=$(JDK_VM) -PJDK_ARCHITECTURE=x64 \
-        -PARTIFACTORY_USER=na \
-        -PARTIFACTORY_PASSWORD=na \
-        -PARTIFACTORY_REPOSITORY_DEB=na \
-        -PARTIFACTORY_REPOSITORY_RPM=na
+        -PJDK_VM=$(jdkVm) \
+        -PJDK_ARCHITECTURE=$(jdkArchitecture) \
+        -PVENDOR_HOMEPAGE=$(vendorHomepage) \
+        -PVENDOR_SOURCE_URL=$(sourceUrl) \
+        -PDEBIAN_ITERATION=$(packageIteration)
+
     displayName: "Creating Deb package for Microsoft OpenJDK"
 
   # set variables for debian package path and name
@@ -101,6 +112,6 @@ jobs:
       inlineScript: |
         az storage blob upload --file "$(package.path)/$(package.name)" \
         --name $(package.name) \
-        --account-name $(AZURE_STORAGE) --container-name $(AZURE_STORAGE_CONTAINER) \
+        --account-name $(azureStorage) --container-name $(azureStorageContainer) \
         --content-md5 $(openssl dgst -md5 -binary "$(package.path)/$(package.name)" | base64)
     displayName: "Upload openjdk debian package to Azure Storage"

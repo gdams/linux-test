@@ -113,10 +113,6 @@ def getJdkMajorVersion() {
     return version
 }
 
-def getVendor() {
-    return hasProperty("VENDOR") ? VENDOR : "AdoptOpenJDK"
-}
-
 enum DistributionType {
     JDK("", "OpenJDK Development Kit"),
     JRE("jre", "OpenJDK Runtime Environment")
