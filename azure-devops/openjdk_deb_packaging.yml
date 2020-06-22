@@ -1,13 +1,12 @@
 # Purpose: pipeline yml for creating OpenJDK Debian Package
 
-# disable the pipeline trigger until openjdk11Nightly is fixed
-# resources:
-#   pipelines:
-#   - pipeline: openjdk11Nightly
-#     source: openjdk-jdk11u
-#     trigger:
-#       branches:
-#       - master
+resources:
+  pipelines:
+  - pipeline: openjdk11Nightly
+    source: openjdk-jdk11u
+    trigger:
+      branches:
+      - master
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -16,7 +15,7 @@ jobs:
 - job: create_debian_package
   displayName: "Create and Upload OpenJDK Debian Package"
   variables:
-    vendor: 'microsoft'
+    vendor: 'Microsoft'
     packageName: 'openjdk'
     jdkMajorVersion: 11
     jdkDistributionType: 'JDK'
@@ -24,7 +23,6 @@ jobs:
     jdkArchitecture: x64
     vendorHomepage: "https://www.microsoft.com/"
     sourceUrl: "https://dev.azure.com/ms-juniper/MS-OpenJDK/_git/openjdk-jdk11u"
-    packageIteration: 1
     azureStorage: "msopenjdkdistro"
     azureStorageContainer: "msopenjdk-for-cbld"
 
@@ -83,7 +81,7 @@ jobs:
         -PJDK_ARCHITECTURE=$(jdkArchitecture) \
         -PVENDOR_HOMEPAGE=$(vendorHomepage) \
         -PVENDOR_SOURCE_URL=$(sourceUrl) \
-        -PDEBIAN_ITERATION=$(packageIteration)
+        -PDEBIAN_ITERATION=$(DEBIAN_ITERATION)
 
     displayName: "Creating Deb package for Microsoft OpenJDK"
 
