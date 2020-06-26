@@ -6,7 +6,7 @@ resources:
     source: openjdk-jdk11u
     trigger:
       branches:
-      - master
+      - main
 
 pool:
   vmImage: 'ubuntu-latest'
