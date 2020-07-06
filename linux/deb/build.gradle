@@ -9,7 +9,8 @@ ext.jinfoPriorities = [
     12: 1121,
     13: 1131,
     14: 1141,
-    15: 1151
+    15: 1151,
+    16: 1161,
 ]
 
 tasks.register("buildDebianPackage", BuildDebianPackage) {
@@ -49,23 +50,23 @@ tasks.register("uploadDebianPackage", UploadDebianPackage) {
     architecture = buildDebianPackage.getArchitecture().debQualifier()
     releaseArchitecture amd64: [
         debian: ["jessie", "stretch", "buster"],
-        ubuntu: ["xenial", "bionic", "disco", "eoan", "focal"]
+        ubuntu: ["xenial", "bionic", "eoan", "focal", "groovy"]
     ]
     releaseArchitecture s390x: [
         debian: ["jessie", "stretch", "buster"],
-        ubuntu: ["xenial", "bionic", "disco", "eoan", "focal"]
+        ubuntu: ["xenial", "bionic", "eoan", "focal", "groovy"]
     ]
     releaseArchitecture ppc64el: [
         debian: ["jessie", "stretch", "buster"],
-        ubuntu: ["xenial", "bionic", "disco", "eoan", "focal"]
+        ubuntu: ["xenial", "bionic", "eoan", "focal", "groovy"]
     ]
     releaseArchitecture armhf: [
         debian  : ["jessie", "stretch", "buster"],
-        ubuntu  : ["xenial", "bionic", "disco", "eoan", "focal"]
+        ubuntu  : ["xenial", "bionic", "eoan", "focal", "groovy"]
     ]
     releaseArchitecture arm64: [
         debian: ["jessie", "stretch", "buster"],
-        ubuntu: ["xenial", "bionic", "disco", "eoan", "focal"]
+        ubuntu: ["xenial", "bionic", "eoan", "focal", "groovy"]
     ]
 }
 
