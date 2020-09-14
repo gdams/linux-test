@@ -22,7 +22,7 @@ jobs:
     jdkVm: 'hotspot'
     jdkArchitecture: x64
     vendorHomepage: "https://www.microsoft.com/"
-    sourceUrl: "https://dev.azure.com/ms-juniper/MS-OpenJDK/_git/openjdk-jdk11u"
+    sourceUrl: "https://dev.azure.com/ms-juniper/MS-OpenJDK/_git/jdk11u"
     azureStorage: "msopenjdkdistro"
     azureStorageContainer: "msopenjdk-for-cbld"
 
