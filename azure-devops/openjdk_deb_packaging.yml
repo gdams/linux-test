@@ -1,0 +1,116 @@
+# Purpose: pipeline yml for creating OpenJDK Debian Package
+
+resources:
+  pipelines:
+  - pipeline: openjdk11Nightly
+    source: jdk11u-nightly
+    trigger:
+      branches:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: create_debian_package
+  displayName: "Create and Upload OpenJDK Debian Package"
+  variables:
+    vendor: 'Microsoft'
+    packageName: 'openjdk'
+    jdkMajorVersion: 11
+    jdkDistributionType: 'JDK'
+    jdkVm: 'hotspot'
+    jdkArchitecture: x64
+    vendorHomepage: "https://www.microsoft.com/"
+    sourceUrl: "https://dev.azure.com/ms-juniper/MS-OpenJDK/_git/jdk11u"
+    azureStorage: "msopenjdkdistro"
+    azureStorageContainer: "msopenjdk-for-cbld"
+
+  steps:
+  # install fpm, a dependency for creating deb package
+  - bash: |
+      ruby -v
+      sudo gem install fpm
+    displayName: 'install fpm'
+
+  # check Java version installed in the agent
+  - script: java -version
+    displayName: "Check java version"
+
+  # download Linux JDK artifact from the latest openJDK11 nightly build
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      buildType: 'specific'
+      project: '900150b5-bf67-4f73-8a5d-d59305e4b2a6'
+      definition: '225'
+      specificBuildWithTriggering: true
+      buildVersionToDownload: 'latest'
+      allowPartiallySucceededBuilds: true
+      allowFailedBuilds: true
+      itemPattern: 'Linux_X64/*jdk*'
+      targetPath: '.'
+
+  # read JDK version from artifact and save to variable.
+  # version string is extracted as a substring between "jdk-" and "-linux" of the jdk artifact file
+  # eg. "microsoft-jdk-11.0.8.6-2020.06.09.8203-linux-x64.tar.gz" has version "11.0.8.6-2020.06.09.8203"
+  - bash: |
+      cd Linux_X64
+      JDK_VERSION=$(ls | grep microsoft-jdk | sed 's/.*jdk-\(.*\)-linux.*/\1/')
+      echo "downloaded openJDK with version $JDK_VERSION"
+      echo "##vso[task.setvariable variable=msJdkVersion]$JDK_VERSION~microsoft"
+    displayName: "Save JDK Version for packaging into variable"
+
+  # make BuildSrc Folder and extract JDK binary
+  - bash: |
+      mkdir $(Pipeline.Workspace)/BuildSrc
+      JDK_TARBALL=$(find . -name *jdk*.tar.gz)
+      echo "extracting JDK_TARBALL: $JDK_TARBALL to $(Pipeline.Workspace)/BuildSrc"
+      tar -xvf "$JDK_TARBALL" -C $(Pipeline.Workspace)/BuildSrc --strip-components=1
+    displayName: "Extract JDK Tarball to $(Pipeline.Workspace)/BuildSrc with --strip-components=1"
+
+  # creating openjdk debian package
+  - bash: |
+      cd linux
+      ./gradlew buildDebianPackage \
+        -PVENDOR=$(vendor) \
+        -PPACKAGE_NAME=$(packageName) \
+        -PJDK_DISTRIBUTION_TYPE=$(jdkDistributionType) \
+        -PJDK_DISTRIBUTION_DIR=$(Pipeline.Workspace)/BuildSrc \
+        -PJDK_MAJOR_VERSION=$(jdkMajorVersion) \
+        -PJDK_VERSION=$(msJdkVersion) \
+        -PJDK_VM=$(jdkVm) \
+        -PJDK_ARCHITECTURE=$(jdkArchitecture) \
+        -PVENDOR_HOMEPAGE=$(vendorHomepage) \
+        -PVENDOR_SOURCE_URL=$(sourceUrl) \
+        -PDEBIAN_ITERATION=$(DEBIAN_ITERATION)
+
+    displayName: "Creating Deb package for Microsoft OpenJDK"
+
+  # set variables for debian package path and name
+  - bash: |
+      pkgPath="$(pwd)/linux/deb/build"
+      echo "##vso[task.setvariable variable=package.path]$pkgPath"
+      cd $pkgPath
+      pkgName=$(ls -R | grep *openjdk*.deb)
+      echo "##vso[task.setvariable variable=package.name]$pkgName"
+    displayName: "Save debian package file path and name into variables"
+
+  # upload deb package to build artifact
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: "linux/deb/build/$(package.name)"
+      artifact: 'openjdk_debian_package'
+      publishLocation: 'pipeline'
+
+  # upload debian package to azure storage
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'Juniper Infrastructure(69476eaa-93fa-4391-afa0-c16bf5305d1e)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az storage blob upload --file "$(package.path)/$(package.name)" \
+        --name $(package.name) \
+        --account-name $(azureStorage) --container-name $(azureStorageContainer) \
+        --content-md5 $(openssl dgst -md5 -binary "$(package.path)/$(package.name)" | base64)
+    displayName: "Upload openjdk debian package to Azure Storage"
