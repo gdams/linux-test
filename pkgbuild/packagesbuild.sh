@@ -19,7 +19,7 @@ set -eu
 IDENTIFIER=
 VENDOR="adoptopenjdk"
 PACKAGE_NAME="AdoptOpenJDK"
-LOGO="Resources/adoptopenjdk.png"
+LOGO="Resources/microsoft.png"
 
 while test $# -gt 0; do
   case "$1" in
