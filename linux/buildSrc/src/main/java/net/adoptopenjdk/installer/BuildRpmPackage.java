@@ -37,9 +37,8 @@ public class BuildRpmPackage extends AbstractBuildLinuxPackage {
     public File getOutputFile() {
         // Result should look like java-11-openjdk-11.0.ea.28-2.fc29.x86_64.rpm
         String outputFileName = String.format(
-                "%s-%s-%s.%s.rpm",
+                "%s-%s.%s.rpm",
                 getPackageName(),
-                getPackageVersion(),
                 getIteration(),
                 getArchitecture().rpmQualifier()
         );
