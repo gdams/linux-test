@@ -21,7 +21,7 @@ if [ -f ~/.password ]; then
 fi
 
 set +u
-SIGN_OPTION=
+SIGN_CERT=
 SIGN_CMD=
 if [ ! -z "$CERTIFICATE" ]; then
   SIGN_CMD="--sign"
@@ -53,7 +53,7 @@ do tar -xf "$f";
 
   # Detect if JRE or JDK
   case $f in
-    *-jre)
+    *-jre_*)
       TYPE="jre"
       ;;
     *)

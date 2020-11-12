@@ -16,6 +16,9 @@
 
 set -eu
 
+SIGN_OPTION=
+SIGN_CMD=
+NOTARIZE_OPTION=
 IDENTIFIER=
 VENDOR="adoptopenjdk"
 PACKAGE_NAME="AdoptOpenJDK"
@@ -36,6 +39,7 @@ while test $# -gt 0; do
       echo "--package-name           full name of the package (shown in the title)"
       echo "--logo                   Relative path to a custom logo (bottom left)"
       echo "--identifier             override the identifier e.g net.adoptopenjdk.11.jdk"
+      echo "-s, --sign               sign the installer>"
       exit 0
       ;;
     --major_version)
@@ -88,6 +92,13 @@ while test $# -gt 0; do
       IDENTIFIER="$1"
       shift
       ;;
+    -s|--sign)
+      shift
+      SIGN_OPTION="true"
+      SIGN_CERT="$1"
+      NOTARIZE_OPTION="true"
+      shift
+      ;;
     *)
       break
       ;;
@@ -106,14 +117,30 @@ if [ $TYPE == "jre" ]; then
     /usr/libexec/PlistBuddy -c "Add :JavaVM:JVMCapabilities:0 string CommandLine" "${INPUT_DIRECTORY}/Contents/Info.plist"
 fi
 
-if [ -z "$IDENTIFIER" ]; then
-  IDENTIFIER="net.${VENDOR}.${MAJOR_VERSION}.${TYPE}"
-fi
-DIRECTORY="${VENDOR}-${MAJOR_VERSION}.${TYPE}"
-cp Licenses/license-GPLv2+CE.en-us.rtf Resources/license.rtf
-case $TYPE in
-  jre) BUNDLE="${PACKAGE_NAME} (JRE)" ;;
-  jdk) BUNDLE="${PACKAGE_NAME}" ;;
+case $JVM in
+  openj9)
+    if [ -z "$IDENTIFIER" ]; then
+      IDENTIFIER="net.${VENDOR}.${MAJOR_VERSION}-openj9.${TYPE}"
+    fi
+    DIRECTORY="${VENDOR}-${MAJOR_VERSION}-openj9.${TYPE}"
+    BUNDLE="${PACKAGE_NAME} (OpenJ9)"
+    cp Licenses/license-OpenJ9.en-us.rtf Resources/license.rtf
+    case $TYPE in
+      jre) BUNDLE="${PACKAGE_NAME} (OpenJ9, JRE)" ;;
+      jdk) BUNDLE="${PACKAGE_NAME} (OpenJ9)" ;;
+    esac
+    ;;
+  *)
+    if [ -z "$IDENTIFIER" ]; then
+      IDENTIFIER="net.${VENDOR}.${MAJOR_VERSION}.${TYPE}"
+    fi
+    DIRECTORY="${VENDOR}-${MAJOR_VERSION}.${TYPE}"
+    cp Licenses/license-GPLv2+CE.en-us.rtf Resources/license.rtf
+    case $TYPE in
+      jre) BUNDLE="${PACKAGE_NAME} (JRE)" ;;
+      jdk) BUNDLE="${PACKAGE_NAME}" ;;
+    esac
+    ;;
 esac
 
 /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString ${BUNDLE} ${FULL_VERSION}" "${INPUT_DIRECTORY}/Contents/Info.plist"
@@ -131,6 +158,12 @@ OUTPUT_FILE=$(basename "$OUTPUT_DIRECTORY" | cut -f 1 -d '.')
 rm -rf *.pkg build/*.pkg distribution.xml Resources/en.lproj/welcome.html Resources/en.lproj/conclusion.html OpenJDKPKG.pkgproj "${DIRECTORY}"
 
 cp -R "${INPUT_DIRECTORY}" "${DIRECTORY}"
+
+if [ ! -z "$SIGN_OPTION" ]; then
+    xattr -cr .
+    security unlock-keychain -p `cat ~/.password` login.keychain-db
+    /usr/bin/codesign --verbose=4 --deep --force -s "Developer ID Application: London Jamocha Community CIC" ${DIRECTORY}
+fi
 
 cat OpenJDKPKG.pkgproj.template  \
   | sed -E "s~\\{path\\}~$DIRECTORY~g" \
@@ -155,4 +188,22 @@ cat OpenJDKPKG.pkgproj.template  \
 
 /usr/local/bin/packagesbuild -v OpenJDKPKG.pkgproj
 
-mv build/"$OUTPUT_FILE.pkg" "$OUTPUT_DIRECTORY"
+if [ ! -z "$SIGN_OPTION" ]; then
+    /usr/bin/productsign --sign "${SIGN_CERT}" build/"$OUTPUT_FILE.pkg" "$OUTPUT_DIRECTORY"
+else
+    mv build/"$OUTPUT_FILE.pkg" "$OUTPUT_DIRECTORY"
+fi
+
+if [ ! -z "$NOTARIZE_OPTION" ]; then
+  echo "Notarizing the installer (please be patient! this takes aprox 10 minutes)"
+  sudo xcode-select --switch /Applications/Xcode.app || true
+  cd notarize
+  npm install
+  node notarize.js --appBundleId $IDENTIFIER --appPath ${OUTPUT_DIRECTORY}
+  if [ $? != 0 ]; then 
+    exit 1
+  fi
+  # Validates that the app has been notarized
+  spctl -a -v --type install ${OUTPUT_DIRECTORY}
+  cd -
+fi
