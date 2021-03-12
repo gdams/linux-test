@@ -77,8 +77,9 @@ public class BuildDebianPackage extends AbstractBuildLinuxPackage {
     public File getOutputFile() {
         // Result looks like openjdk-11-jdk_11.0.1+13-3ubuntu3.18.10.1_amd64.deb
         String outputFileName = String.format(
-                "%s-%s_%s.deb",
+                "%s_%s-%s_%s.deb",
                 getPackageName(),
+                getPackageVersion(),
                 getIteration(),
                 getArchitecture().debQualifier()
         );
