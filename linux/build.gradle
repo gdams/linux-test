@@ -140,15 +140,19 @@ enum DistributionType {
     }
 
     String getSuffix() {
-        if (suffix.empty) {
-            return ""
-        }
-
         return suffix
     }
 
     String getPkgNameSuffix() {
+        if (suffix.empty) {
+            return ""
+        }
+
         return "-${this.suffix}"
+    }
+
+    String getDescription() {
+        return description
     }
 
     String getDescription() {
