@@ -38,7 +38,7 @@ ext {
         license     : "GPL-2.0+CE",
         maintainer  : getVendor(),
         vendor      : getVendor(),
-        packageName : "${getPackageName()}-${jdkMajorVersion}-${jdkDistributionType.pkgNameSuffix}"
+        packageName : "${getPackageName()}-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}"
     ]
     artifactory = [
         url       : "https://adoptopenjdk.jfrog.io/adoptopenjdk/",
@@ -127,7 +127,7 @@ def getJdkMajorVersion() {
 }
 
 enum DistributionType {
-    JDK("jdk", "OpenJDK Development Kit"),
+    JDK("", "OpenJDK Development Kit"),
     JRE("jre", "OpenJDK Runtime Environment")
 
     private final String suffix
@@ -140,6 +140,10 @@ enum DistributionType {
     }
 
     String getSuffix() {
+        if (suffix.empty) {
+            return ""
+        }
+
         return suffix
     }
 
