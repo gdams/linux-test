@@ -154,8 +154,4 @@ enum DistributionType {
     String getDescription() {
         return description
     }
-
-    String getDescription() {
-        return description
-    }
 }
