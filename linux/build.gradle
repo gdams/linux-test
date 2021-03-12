@@ -38,7 +38,7 @@ ext {
         license     : "GPL-2.0+CE",
         maintainer  : getVendor(),
         vendor      : getVendor(),
-        packageName : "${getPackageName()}-${jdkMajorVersion}-${getJdkVirtualMachine().packageQualifier}${jdkDistributionType.pkgNameSuffix}"
+        packageName : getOutputBaseFilename() != "" ? getOutputBaseFilename() : "${getPackageName()}-${jdkMajorVersion}-${getJdkVirtualMachine().packageQualifier}${jdkDistributionType.pkgNameSuffix}"
     ]
     artifactory = [
         url       : "https://adoptopenjdk.jfrog.io/adoptopenjdk/",
@@ -93,6 +93,10 @@ def getJdkArchitecture() {
     return hasProperty("JDK_ARCHITECTURE") ?
         Architecture.valueOf(JDK_ARCHITECTURE.toUpperCase(Locale.US)) :
         Architecture.X64
+}
+
+def getOutputBaseFilename() {
+    return hasProperty("OUTPUT_BASE_FILENAME") ? OUTPUT_BASE_FILENAME : ""
 }
 
 def getVendor() {

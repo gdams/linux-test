@@ -7,8 +7,8 @@ REM PRODUCT_MAINTENANCE_VERSION=0
 REM PRODUCT_PATCH_VERSION=0
 REM PRODUCT_BUILD_NUMBER=28
 REM MSI_PRODUCT_VERSION=11.0.0.28
-REM ARCH=x64|x86-32|arm64 or all "x64 x86-32 arm64"
-REM JVM=hotspot|openj9|dragonwell or both JVM=hotspot openj9
+REM ARCH=x64|x86-32 or both "x64 x86-32"
+REM JVM=hotspot|openj9 or both JVM=hotspot openj9
 REM PRODUCT_CATEGORY=jre|jdk (only one at a time)
 REM SKIP_MSI_VALIDATION=true (Add -sval option to light.exe to skip MSI/MSM validation and skip smoke.exe )
 REM UPGRADE_CODE_SEED=thisIsAPrivateSecretSeed ( optional ) for upgradable MSI (If none, new PRODUCT_UPGRADE_CODE is generate for each run)
@@ -24,62 +24,28 @@ IF NOT DEFINED MSI_PRODUCT_VERSION SET ERR=6
 IF NOT DEFINED ARCH SET ERR=7
 IF NOT DEFINED JVM SET ERR=8
 IF NOT DEFINED PRODUCT_CATEGORY SET ERR=9
+IF NOT DEFINED OUTPUT_BASE_FILENAME SET ERR=10
 IF NOT %ERR% == 0 ( ECHO Missing args/variable ERR:%ERR% && GOTO FAILED )
 
-REM default vendor information
-IF NOT DEFINED VENDOR SET VENDOR=AdoptOpenJDK
-IF NOT DEFINED VENDOR_BRANDING SET VENDOR_BRANDING=AdoptOpenJDK
-IF NOT DEFINED VENDOR_BRANDING_LOGO SET VENDOR_BRANDING_LOGO=$(var.SetupResourcesDir)\logo.ico
-IF NOT DEFINED VENDOR_BRANDING_BANNER SET VENDOR_BRANDING_BANNER=$(var.SetupResourcesDir)\wix-banner.bmp
-IF NOT DEFINED VENDOR_BRANDING_DIALOG SET VENDOR_BRANDING_DIALOG=$(var.SetupResourcesDir)\wix-dialog.bmp
-IF NOT DEFINED PRODUCT_HELP_LINK SET PRODUCT_HELP_LINK=https://github.com/AdoptOpenJDK/openjdk-build/issues/new/choose
-IF NOT DEFINED PRODUCT_SUPPORT_LINK SET PRODUCT_SUPPORT_LINK=https://adoptopenjdk.net/support.html
-IF NOT DEFINED PRODUCT_UPDATE_INFO_LINK SET PRODUCT_UPDATE_INFO_LINK=https://adoptopenjdk.net/releases.html
-
-REM This needs tidying up, it's got out of control now
 IF NOT "%ARCH%" == "x64" (
 	IF NOT "%ARCH%" == "x86-32" (
-        IF NOT "%ARCH%" == "arm64" (
-            IF NOT "%ARCH%" == "x86-32 x64" (
-                IF NOT "%ARCH%" == "x86-32 arm64" (
-                    IF NOT "%ARCH%" == "arm64 x86-32" (
-                        IF NOT "%ARCH%" == "x64 x86-32" (
-                            IF NOT "%ARCH%" == "x64 arm64" (
-                                IF NOT "%ARCH%" == "arm64 x64" (
-                                    IF NOT "%ARCH%" == "x86-32 x64 arm64" (
-                                        IF NOT "%ARCH%" == "x86-32 arm64 x64" (
-                                            IF NOT "%ARCH%" == "arm64 x86-32 x64" (
-                                                IF NOT "%ARCH%" == "arm64 x64 x86-32" (
-                                                    IF NOT "%ARCH%" == "x86-32 x64 arm64" (
-                                                        IF NOT "%ARCH%" == "x64 x86-32 arm64" (
-                                                            ECHO ARCH %ARCH% not supported : valid values : x64, x86-32, arm64, x86-32 x64, x64 x86-32, x86-32 x64 arm64, x86-32 arm64 x64, arm64 x86-32 x64, arm64 x64 x86-32, x86-32 x64 arm64, x64 x86-32 arm64
-                                                            GOTO FAILED
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-        )
+		IF NOT "%ARCH%" == "x86-32 x64" (
+			IF NOT "%ARCH%" == "x64 x86-32" (
+				ECHO ARCH %ARCH% not supported : valid values : x86-32, x64, x86-32 x64, x64 x86-32
+				GOTO FAILED
+			)
+		)
 	)
 )
 
 IF NOT "%JVM%" == "hotspot" (
 	IF NOT "%JVM%" == "openj9" (
-	    IF NOT "%JVM%" == "dragonwell" (
-            IF NOT "%JVM%" == "openj9 hotspot" (
-                IF NOT "%JVM%" == "hotspot openj9" (
-                    ECHO JVM "%JVM%" not supported : valid values : hotspot, openj9, dragonwell, hotspot openj9, openj9 hotspot
-                    GOTO FAILED
-                )
-            )
-        )
+		IF NOT "%JVM%" == "openj9 hotspot" (
+			IF NOT "%JVM%" == "hotspot openj9" (
+				ECHO JVM "%JVM%" not supported : valid values : hotspot, openj9, hotspot openj9, openj9 hotspot
+				GOTO FAILED
+			)
+		)
 	)
 )
 
@@ -99,16 +65,6 @@ REM Configure available SDK version:
 REM See folder e.g. "C:\Program Files (x86)\Windows Kits\[10]\bin\[10.0.16299.0]\x64"
 SET WIN_SDK_MAJOR_VERSION=10
 SET WIN_SDK_FULL_VERSION=10.0.17763.0
-
-REM find all *.wxi.template,*.wxl.template,*.wxs.template files and replace text with configurations
-SETLOCAL ENABLEDELAYEDEXPANSION
-FOR /f %%i IN ('dir /s /b *.wxi.template,*.wxl.template,*.wxs.template') DO (
-    SET INPUT_FILE=%%i
-    SET OUTPUT_FILE=!INPUT_FILE:.template=%!
-    ECHO string replacement input !INPUT_FILE! output !OUTPUT_FILE!
-    powershell -Command "(gc %%i) -replace '{vendor}', '!VENDOR!' -replace '{vendor_branding_logo}', '!VENDOR_BRANDING_LOGO!' -replace '{vendor_branding_banner}', '!VENDOR_BRANDING_BANNER!' -replace '{vendor_branding_dialog}', '!VENDOR_BRANDING_DIALOG!' -replace '{vendor_branding}', '!VENDOR_BRANDING!' -replace '{product_help_link}', '!PRODUCT_HELP_LINK!' -replace '{product_support_link}', '!PRODUCT_SUPPORT_LINK!' -replace '{product_update_info_link}', '!PRODUCT_UPDATE_INFO_LINK!' | Out-File -encoding ASCII !OUTPUT_FILE!"
-)
-ENDLOCAL
 
 REM
 REM Nothing below this line need to be changed normally.
@@ -137,7 +93,7 @@ ECHO PRODUCT_FULL_VERSION=!PRODUCT_FULL_VERSION!
 ECHO PRODUCT_SHORT_VERSION=!PRODUCT_SHORT_VERSION!
 
 
-REM Generate platform specific builds (x86-32,x64, arm64)
+REM Generate platform specific builds (x86-32,x64)
 FOR %%A IN (%ARCH%) DO (
   REM We could build both "hotspot,openj9" in one script, but it is not clear if release cycle is the same.
   FOR %%J IN (%JVM%) DO (
@@ -179,7 +135,6 @@ FOR %%A IN (%ARCH%) DO (
     :CONTINUE
     ECHO Source dir used : !REPRO_DIR!
 
-    SET OUTPUT_BASE_FILENAME=!PRODUCT_SKU!!PRODUCT_MAJOR_VERSION!-!PRODUCT_CATEGORY!_!FOLDER_PLATFORM!_windows_!PACKAGE_TYPE!-!PRODUCT_FULL_VERSION!
     SET CACHE_BASE_FOLDER=Cache
     REM Each build his own cache for concurrent build
     SET CACHE_FOLDER=!CACHE_BASE_FOLDER!\!OUTPUT_BASE_FILENAME!
@@ -230,28 +185,6 @@ FOR %%A IN (%ARCH%) DO (
 
 	REM Build without extra Source Code feature
 
-    REM Set default variable
-    SET ICEDTEAWEB_DIR=.\SourceDir\icedtea-web-image
-    SET BUNDLE_ICEDTEAWEB=false
-    IF !PLATFORM! == x64 (
-        IF !PRODUCT_MAJOR_VERSION! == 8 (
-            IF EXIST !ICEDTEAWEB_DIR! (
-                ECHO IcedTeaWeb Directory Exist!
-                SET BUNDLE_ICEDTEAWEB=true
-                SET ITW_WXS="IcedTeaWeb-!OUTPUT_BASE_FILENAME!.wxs"
-                SET ITW_WIXOBJ="IcedTeaWeb-!OUTPUT_BASE_FILENAME!.wixobj"
-                ECHO HEAT
-                "!WIX!bin\heat.exe" dir "!ICEDTEAWEB_DIR!" -out !ITW_WXS! -t "!SETUP_RESOURCES_DIR!\heat.icedteaweb.xslt" -gg -sfrag -scom -sreg -srd -ke -cg "IcedTeaWebFiles" -var var.IcedTeaWebDir -dr INSTALLDIR -platform !PLATFORM!
-                IF ERRORLEVEL 1 (
-                    ECHO "Failed to generating Windows Installer XML Source files for IcedTea-Web (.wxs)"
-                    GOTO FAILED
-                )
-            ) ELSE (
-                ECHO IcedTeaWeb Directory Does Not Exist!
-            )
-        )
-    )
-    
     ECHO HEAT
     @ECHO ON
     "!WIX!bin\heat.exe" dir "!REPRO_DIR!" -out Files-!OUTPUT_BASE_FILENAME!.wxs -gg -sfrag -scom -sreg -srd -ke -cg "AppFiles" -var var.ProductMajorVersion -var var.ProductMinorVersion -var var.ProductVersionString -var var.MSIProductVersion -var var.ReproDir -dr INSTALLDIR -platform !PLATFORM!
@@ -263,7 +196,7 @@ FOR %%A IN (%ARCH%) DO (
 
     ECHO CANDLE
     @ECHO ON
-    "!WIX!bin\candle.exe" -arch !PLATFORM! Main-!OUTPUT_BASE_FILENAME!.wxs Files-!OUTPUT_BASE_FILENAME!.wxs !ITW_WXS! -ext WixUIExtension -ext WixUtilExtension -dIcedTeaWebDir="!ICEDTEAWEB_DIR!" -dProductSku="!PRODUCT_SKU!" -dProductMajorVersion="!PRODUCT_MAJOR_VERSION!" -dProductMinorVersion="!PRODUCT_MINOR_VERSION!" -dProductVersionString="!PRODUCT_SHORT_VERSION!" -dMSIProductVersion="!MSI_PRODUCT_VERSION!" -dProductId="!PRODUCT_ID!" -dProductUpgradeCode="!PRODUCT_UPGRADE_CODE!" -dReproDir="!REPRO_DIR!" -dSetupResourcesDir="!SETUP_RESOURCES_DIR!" -dCulture="!CULTURE!" -dJVM="!PACKAGE_TYPE!"
+    "!WIX!bin\candle.exe" -arch !PLATFORM! Main-!OUTPUT_BASE_FILENAME!.wxs Files-!OUTPUT_BASE_FILENAME!.wxs !ITW_WXS! -ext WixUIExtension -ext WixUtilExtension -dProductSku="!PRODUCT_SKU!" -dProductMajorVersion="!PRODUCT_MAJOR_VERSION!" -dProductMinorVersion="!PRODUCT_MINOR_VERSION!" -dProductVersionString="!PRODUCT_SHORT_VERSION!" -dMSIProductVersion="!MSI_PRODUCT_VERSION!" -dProductId="!PRODUCT_ID!" -dProductUpgradeCode="!PRODUCT_UPGRADE_CODE!" -dReproDir="!REPRO_DIR!" -dSetupResourcesDir="!SETUP_RESOURCES_DIR!" -dCulture="!CULTURE!" -dJVM="!PACKAGE_TYPE!"
     IF ERRORLEVEL 1 (
         ECHO Failed to preprocesses and compiles WiX source files into object files ^(.wixobj^)
         GOTO FAILED
@@ -278,10 +211,6 @@ FOR %%A IN (%ARCH%) DO (
         GOTO FAILED
     )
     @ECHO OFF
-
-    REM Clean up variables
-    SET ICEDTEAWEB_DIR=
-    SET BUNDLE_ICEDTEAWEB=
 
     REM Generate setup translations
     FOR /F "tokens=1-2" %%L IN (Lang\LanguageList.config) do (
@@ -368,7 +297,6 @@ ENDLOCAL
 REM Cleanup variables
 SET CULTURE=
 SET LANGIDS=
-SET OUTPUT_BASE_FILENAME=
 SET PACKAGE_TYPE=
 SET PRODUCT_CATEGORY=
 SET PRODUCT_SKU=
