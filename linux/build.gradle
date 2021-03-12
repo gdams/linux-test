@@ -38,7 +38,7 @@ ext {
         license     : "GPL-2.0+CE",
         maintainer  : getVendor(),
         vendor      : getVendor(),
-        packageName : getOutputBaseFilename() != "" ? getOutputBaseFilename() : "${getPackageName()}-${jdkMajorVersion}-${getJdkVirtualMachine().packageQualifier}${jdkDistributionType.pkgNameSuffix}"
+        packageName : "${getPackageName()}-${jdkMajorVersion}-${jdkDistributionType.pkgNameSuffix}"
     ]
     artifactory = [
         url       : "https://adoptopenjdk.jfrog.io/adoptopenjdk/",
@@ -95,10 +95,6 @@ def getJdkArchitecture() {
         Architecture.X64
 }
 
-def getOutputBaseFilename() {
-    return hasProperty("OUTPUT_BASE_FILENAME") ? OUTPUT_BASE_FILENAME : ""
-}
-
 def getVendor() {
     return hasProperty("VENDOR") ? VENDOR : "AdoptOpenJDK"
 }
@@ -131,7 +127,7 @@ def getJdkMajorVersion() {
 }
 
 enum DistributionType {
-    JDK("", "OpenJDK Development Kit"),
+    JDK("jdk", "OpenJDK Development Kit"),
     JRE("jre", "OpenJDK Runtime Environment")
 
     private final String suffix
@@ -148,10 +144,6 @@ enum DistributionType {
     }
 
     String getPkgNameSuffix() {
-        if (suffix.empty) {
-            return ""
-        }
-
         return "-${this.suffix}"
     }
 
