@@ -21,13 +21,18 @@ Get-ChildItem -Path .\ -Filter *.zip -File -Name| ForEach-Object {
   $jvm = "hotspot"
 
   # Windows Architecture supported
-  $platform_regex = "(?<platform>x86-32|x64)"
+  $platform_regex = "(?<platform>x86-32|x64|aarch64)"
   $platform_found = $filename -match $platform_regex
   if (!$platform_found) {
     echo "filename : $filename doesn't match regex $platform_regex"
     exit 2
   }
   $platform = $Matches.platform
+
+  # Wix toolset expects this to be called arm64
+  if ($platform -eq "aarch64") {
+    $platform="arm64"
+  }
 
   # extract now
   $unzip_dest = ".\$major\$jvm\$platform"
@@ -44,11 +49,11 @@ Get-ChildItem -Path .\ -Filter *.zip -File -Name| ForEach-Object {
     } elseif ( $_.Name -Match "(.*)_(.*)$" ) {
         $NewName = $_.Name -replace "(.*)_(.*)$",'$1'
     }
-    
+
     #echo "NewName: " $NewName
     $Destination = Join-Path -Path $SourcePath -ChildPath $NewName
     #echo "Destination: "$Destination
-    
+
     echo Moving $_.FullName to $Destination
     if (Test-Path $Destination) { Remove-Item $Destination -Recurse; }
     Move-Item -Path $_.FullName -Destination $Destination -Force
