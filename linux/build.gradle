@@ -38,7 +38,7 @@ ext {
         license     : "GPL-2.0+CE",
         maintainer  : getVendor(),
         vendor      : getVendor(),
-        packageName : "${getPackageName()}-${jdkMajorVersion}-${getJdkVirtualMachine().packageQualifier}${jdkDistributionType.pkgNameSuffix}"
+        packageName : "${getPackageName()}-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}"
     ]
     artifactory = [
         url       : "https://adoptopenjdk.jfrog.io/adoptopenjdk/",

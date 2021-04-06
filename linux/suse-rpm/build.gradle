@@ -13,11 +13,11 @@ tasks.register("buildSuseRpmPackage", BuildRpmPackage) {
     license = pkgMetadata.license
     packageDescription = pkgMetadata.description
     category = "java"
-    dependenciesFile = file("config/jdk-${jdkMajorVersion}-${pkgMetadata.vm.configQualifier}${jdkDistributionType.pkgNameSuffix}/dependencies.txt")
-    providesFile = file("config/jdk-${jdkMajorVersion}-${pkgMetadata.vm.configQualifier}${jdkDistributionType.pkgNameSuffix}/provides.txt")
+    dependenciesFile = file("config/jdk-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}/dependencies.txt")
+    providesFile = file("config/jdk-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}/provides.txt")
     prefix = pkgMetadata.architecture.isaBits() == 64 ? "/usr/lib64/jvm" : "/usr/lib/jvm"
-    afterInstallScript = file("config/jdk-${jdkMajorVersion}-${pkgMetadata.vm.configQualifier}${jdkDistributionType.pkgNameSuffix}/postinst.sh")
-    beforeRemoveScript = file("config/jdk-${jdkMajorVersion}-${pkgMetadata.vm.configQualifier}${jdkDistributionType.pkgNameSuffix}/prerm.sh")
+    afterInstallScript = file("config/jdk-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}/postinst.sh")
+    beforeRemoveScript = file("config/jdk-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}/prerm.sh")
     prebuiltJdkDirectory = jdkDistributionDir
     variant = "suse"
     signPackage = getSignPackageProperty()

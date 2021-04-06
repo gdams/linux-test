@@ -24,22 +24,10 @@ call powershell.exe ./CreateSourceFolder.AdoptOpenJDK.ps1
   SET PRODUCT_MINOR_VERSION=0
   SET PRODUCT_MAINTENANCE_VERSION=2
   SET PRODUCT_PATCH_VERSION=8
-  SET ARCH=x64|x86|arm64 or all "x64 x86 arm64"
-  SET JVM=hotspot|openj9|dragonwell or both JVM=hotspot openj9
+  SET ARCH=x64|x86 or both "x64 x86"
+  SET JVM=hotspot|openj9 or both JVM=hotspot openj9
   SET PRODUCT_CATEGORY=jre|jdk (only one at a time)
   cmd /c Build.OpenJDK_generic.cmd
-  ```
-
-  To customize branding information you can export the following environment variables to oveeride the default values. The default values are listed below:
-  ```batch
-  set VENDOR=AdoptOpenJDK
-  set VENDOR_BRANDING=AdoptOpenJDK
-  set PRODUCT_HELP_LINK=https://github.com/AdoptOpenJDK/openjdk-build/issues/new/choose
-  set PRODUCT_SUPPORT_LINK=https://adoptopenjdk.net/support.html
-  set PRODUCT_UPDATE_INFO_LINK=https://adoptopenjdk.net/releases.html
-  set VENDOR_BRANDING_LOGO=$(var.SetupResourcesDir)\logo.ico
-  set VENDOR_BRANDING_BANNER=$(var.SetupResourcesDir)\wix-banner.bmp
-  set VENDOR_BRANDING_DIALOG=$(var.SetupResourcesDir)\wix-dialog.bmp
   ```
 
  `Build.OpenJDK_generic.cmd` statically depend on this SDK version (edit if needed ):

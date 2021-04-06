@@ -2,7 +2,7 @@ Get-ChildItem -Path .\ -Filter *.zip -File -Name| ForEach-Object {
   $filename = [System.IO.Path]::GetFileName($_)
 
   # validate that the zip file is OpenJDK with an optional major version number
-  $openjdk_filename_regex = "^OpenJDK(?<major>\d*)"
+  $openjdk_filename_regex = "^microsoft-(jdk|jre)-(?<major>\d*)"
   $openjdk_found = $filename -match $openjdk_filename_regex
   if (!$openjdk_found) {
     echo "filename : $filename doesn't match regex $openjdk_filename_regex"
@@ -18,27 +18,16 @@ Get-ChildItem -Path .\ -Filter *.zip -File -Name| ForEach-Object {
     $major=$openjdk_basedir + $Matches.major
   }
 
-  $jvm_regex = "(?<jvm>hotspot|openj9|dragonwell)"
-  $jvm_found = $filename -match $jvm_regex
-  if (!$jvm_found) {
-    echo "filename : $filename doesn't match regex $jvm_regex"
-    exit 2
-  }
-  $jvm = $Matches.jvm
+  $jvm = "hotspot"
 
   # Windows Architecture supported
-  $platform_regex = "(?<platform>x86-32|x64|aarch64)"
+  $platform_regex = "(?<platform>x86-32|x64)"
   $platform_found = $filename -match $platform_regex
   if (!$platform_found) {
     echo "filename : $filename doesn't match regex $platform_regex"
     exit 2
   }
   $platform = $Matches.platform
-
-  # Wix toolset expects this to be called arm64
-  if ($platform -eq "aarch64") {
-    $platform="arm64"
-  }
 
   # extract now
   $unzip_dest = ".\$major\$jvm\$platform"
