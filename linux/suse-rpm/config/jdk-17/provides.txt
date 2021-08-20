@@ -1,0 +1,14 @@
+java
+java-17
+java-17-devel
+java-17-openjdk
+java-17-openjdk-devel
+java-devel
+java-openjdk
+java-openjdk-devel
+java-sdk-17
+java-sdk-17-openjdk
+jre
+jre-17
+jre-17-openjdk
+jre-openjdk
