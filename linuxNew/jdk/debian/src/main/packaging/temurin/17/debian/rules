@@ -1,0 +1,82 @@
+#!/usr/bin/make -f
+
+pkg_name = temurin-17-jdk
+priority = 1161
+jvm_tools = jaotc jar jarsigner java javac javadoc javap jcmd jconsole jdb jdeprscan jdeps jfr jhsdb jimage jinfo jlink jmap jmod jpackage jps jrunscript jshell jstack jstat jstatd keytool rmid rmiregistry serialver jexec jspawnhelper
+amd64_tarball_url = https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.2%2B8/OpenJDK17U-jdk_x64_linux_hotspot_17.0.2_8.tar.gz
+amd64_checksum = 288f34e3ba8a4838605636485d0365ce23e57d5f2f68997ac4c2e4c01967cd48
+arm64_tarball_url = https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.2%2B8/OpenJDK17U-jdk_aarch64_linux_hotspot_17.0.2_8.tar.gz
+arm64_checksum = 302caf29f73481b2b914ba2b89705036010c65eb9bc8d7712b27d6e9bedf6200
+armhf_tarball_url = https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.2%2B8/OpenJDK17U-jdk_arm_linux_hotspot_17.0.2_8.tar.gz
+armhf_checksum = 544936145a4a9b1a316ed3708cd91b3960d5e8e87578bea73ef674ca3047158e
+ppc64el_tarball_url = https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.2%2B8/OpenJDK17U-jdk_ppc64le_linux_hotspot_17.0.2_8.tar.gz
+ppc64el_checksum = 532d831d6a977e821b7331ecf9ed995e5bbfe76f18a1b00ffa8dbb3a4e2887de
+s390x_tarball_url = https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.2%2B8/OpenJDK17U-jdk_s390x_linux_hotspot_17.0.2_8.tar.gz
+s390x_checksum = 383ac8ad392036bedab9a08eb55395b95593a6cc268c422a2bab53f0977a4c54
+
+d = debian/$(pkg_name)
+jvm_home = usr/lib/jvm
+jvm_dir = $(pkg_name)-$(DEB_HOST_ARCH)
+pkg_alias = $(pkg_name)-$(DEB_HOST_ARCH)
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+override_dh_auto_test:
+override_dh_auto_build:
+override_dh_auto_install:
+	# Download and verify checksum of JDK
+	wget --progress=dot:mega -O jdk.tar.gz $($(DEB_HOST_ARCH)_tarball_url)
+	echo '$($(DEB_HOST_ARCH)_checksum) jdk.tar.gz' > jdk.tar.gz.sha256.txt
+	sha256sum -c jdk.tar.gz.sha256.txt
+
+	# Substitute variables.
+	sed \
+		-e 's/@pkg_alias@/$(pkg_alias)/g' \
+		-e 's/@jvm_dir@/$(jvm_dir)/g' \
+		-e 's/@priority@/$(priority)/g' \
+		-e 's/@jvm_tools@/$(jvm_tools)/g' \
+	    debian/jinfo.in > debian/jinfo
+
+	sed \
+		-e 's/@pkg_alias@/$(pkg_alias)/g' \
+		-e 's/@jvm_dir@/$(jvm_dir)/g' \
+		-e 's/@priority@/$(priority)/g' \
+		-e 's/@jvm_tools@/$(jvm_tools)/g' \
+	    debian/postinst.in > debian/postinst
+
+	sed \
+		-e 's/@pkg_alias@/$(pkg_alias)/g' \
+		-e 's/@jvm_dir@/$(jvm_dir)/g' \
+		-e 's/@priority@/$(priority)/g' \
+		-e 's/@jvm_tools@/$(jvm_tools)/g' \
+	    debian/postrm.in > debian/postrm
+
+	# Unpack JDK.
+	dh_installdirs \
+		$(jvm_home) \
+		$(jvm_home)/$(jvm_dir)
+	tar --strip-components=1 -C "$(d)/$(jvm_home)/$(jvm_dir)" -xf jdk.tar.gz
+
+	# Add jinfo file (alternatives support).
+	cp debian/jinfo "$(d)/$(jvm_home)/.$(pkg_alias).jinfo"
+
+	# Strip bundled Freetype and use OS package instead.
+	rm -f "$(d)/$(jvm_home)/$(jvm_dir)/lib/libfreetype.so"
+
+	# Replace bundled cacerts and redirect to adoptium-ca-certificates.
+	rm -f "$(d)/$(jvm_home)/$(jvm_dir)/lib/security/cacerts"
+	ln -s /etc/ssl/certs/adoptium/cacerts "$(d)/$(jvm_home)/$(jvm_dir)/lib/security/cacerts"
+
+	# Ensure src.zip is present in the root folder of the JDK.
+	if [ ! -f "$(d)/$(jvm_home)/$(jvm_dir)/src.zip" ]; then \
+		if [ ! -f "$(d)/$(jvm_home)/$(jvm_dir)/lib/src.zip" ] ; then \
+			echo "Missing src.zip in binary distribution"; \
+			exit 1; \
+		fi; \
+		ln -s lib/src.zip "$(d)/$(jvm_home)/$(jvm_dir)/src.zip"; \
+	fi;
+
+override_dh_gencontrol:
+	dh_gencontrol --

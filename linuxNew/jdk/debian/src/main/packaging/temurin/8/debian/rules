@@ -1,0 +1,82 @@
+#!/usr/bin/make -f
+
+pkg_name = temurin-8-jdk
+priority = 1081
+# The list below must be kept in sync with the jinfo.in file 
+jvm_tools = appletviewer clhsdb extcheck hsdb idlj jar jarsigner java javac javadoc javah javap jcmd jconsole jdb jdeps jfr jhat jinfo jjs jmap jps jrunscript jsadebugd jstack jstat jstatd keytool native2ascii orbd pack200 policytool rmic rmid rmiregistry schemagen serialver servertool tnameserv unpack200 wsgen wsimport xjc jexec
+amd64_tarball_url = https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u322-b06/OpenJDK8U-jdk_x64_linux_hotspot_8u322b06.tar.gz
+amd64_checksum = 3d62362a78c9412766471b05253507a4cfc212daea5cdf122860173ce902400e
+arm64_tarball_url = https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u322-b06/OpenJDK8U-jdk_aarch64_linux_hotspot_8u322b06.tar.gz
+arm64_checksum = 42ed3ff5a859f9015a1362fb7e650026b913d688eab471714f795651120be173
+armhf_tarball_url = https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u322-b06/OpenJDK8U-jdk_arm_linux_hotspot_8u322b06.tar.gz
+armhf_checksum = 0666c466b8aefcc66ab25aea9c0605f5c6eda3b174b1b817a4e4e74da0de0365
+ppc64el_tarball_url = https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u322-b06/OpenJDK8U-jdk_ppc64le_linux_hotspot_8u322b06.tar.gz
+ppc64el_checksum = c7cc9c5b237e9e1f1e3296593aba427375823592e4604fadf89a8c234c2574e1
+
+d = debian/$(pkg_name)
+jvm_home = usr/lib/jvm
+jvm_dir = $(pkg_name)-$(DEB_HOST_ARCH)
+pkg_alias = $(pkg_name)-$(DEB_HOST_ARCH)
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+override_dh_auto_test:
+override_dh_auto_build:
+override_dh_auto_install:
+	# Download and verify checksum of JDK
+	wget --progress=dot:mega -O jdk.tar.gz $($(DEB_HOST_ARCH)_tarball_url)
+	echo '$($(DEB_HOST_ARCH)_checksum) jdk.tar.gz' > jdk.tar.gz.sha256.txt
+	sha256sum -c jdk.tar.gz.sha256.txt
+
+	# Substitute variables.
+	sed \
+		-e 's/@pkg_alias@/$(pkg_alias)/g' \
+		-e 's/@jvm_dir@/$(jvm_dir)/g' \
+		-e 's/@priority@/$(priority)/g' \
+		-e 's/@jvm_tools@/$(jvm_tools)/g' \
+	    debian/jinfo.in > debian/jinfo
+
+	sed \
+		-e 's/@pkg_alias@/$(pkg_alias)/g' \
+		-e 's/@jvm_dir@/$(jvm_dir)/g' \
+		-e 's/@priority@/$(priority)/g' \
+		-e 's/@jvm_tools@/$(jvm_tools)/g' \
+	    debian/postinst.in > debian/postinst
+
+	sed \
+		-e 's/@pkg_alias@/$(pkg_alias)/g' \
+		-e 's/@jvm_dir@/$(jvm_dir)/g' \
+		-e 's/@priority@/$(priority)/g' \
+		-e 's/@jvm_tools@/$(jvm_tools)/g' \
+	    debian/postrm.in > debian/postrm
+
+	# Unpack JDK.
+	dh_installdirs \
+		$(jvm_home) \
+		$(jvm_home)/$(jvm_dir)
+	tar --strip-components=1 -C "$(d)/$(jvm_home)/$(jvm_dir)" -xf jdk.tar.gz
+
+	# Add jinfo file (alternatives support).
+	cp debian/jinfo "$(d)/$(jvm_home)/.$(pkg_alias).jinfo"
+
+	# Strip bundled Freetype and use OS package instead. Not strictly required for
+	# current releases: https://github.com/adoptium/temurin-build/pull/2226
+	rm -f "$(d)/$(jvm_home)/$(jvm_dir)/lib/libfreetype.so"
+
+	# Replace bundled cacerts and redirect to adoptium-ca-certificates.
+	rm -f "$(d)/$(jvm_home)/$(jvm_dir)/jre/lib/security/cacerts"
+	ln -s /etc/ssl/certs/adoptium/cacerts "$(d)/$(jvm_home)/$(jvm_dir)/jre/lib/security/cacerts"
+
+	# Ensure src.zip is present in the root folder of the JDK.
+	if [ ! -f "$(d)/$(jvm_home)/$(jvm_dir)/src.zip" ]; then \
+		if [ ! -f "$(d)/$(jvm_home)/$(jvm_dir)/lib/src.zip" ] ; then \
+			echo "Missing src.zip in binary distribution"; \
+			exit 1; \
+		fi; \
+		ln -s lib/src.zip "$(d)/$(jvm_home)/$(jvm_dir)/src.zip"; \
+	fi;
+
+override_dh_gencontrol:
+	dh_gencontrol --

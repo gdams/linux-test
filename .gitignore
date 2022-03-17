@@ -18,4 +18,14 @@ Thumbs.db
 .idea
 *.iml
 
+# Ignore VS Code / Eclipse IDE files
+**/*.classpath
+**/*.project
+**/*.settings
+.java-version
+.vscode
+
+# Ignore build artifacts from packagers
+**/*/bin
+
 node_modules/

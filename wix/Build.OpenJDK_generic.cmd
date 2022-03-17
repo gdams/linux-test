@@ -26,7 +26,6 @@ IF NOT DEFINED JVM SET ERR=8
 IF NOT DEFINED PRODUCT_CATEGORY SET ERR=9
 IF NOT DEFINED OUTPUT_BASE_FILENAME SET ERR=10
 IF NOT %ERR% == 0 ( ECHO Missing args/variable ERR:%ERR% && GOTO FAILED )
-
 IF NOT "%ARCH%" == "x64" (
 	IF NOT "%ARCH%" == "x86" (
         IF NOT "%ARCH%" == "arm64" (
@@ -59,6 +58,10 @@ IF NOT "%ARCH%" == "x64" (
         )
 	)
 )
+
+REM Update to handle the change of build variant until implications
+REM of setting this to Temurin can be evaluated
+IF "%JVM%" == "temurin" SET JVM=hotspot
 
 IF NOT "%JVM%" == "hotspot" (
 	IF NOT "%JVM%" == "openj9" (
