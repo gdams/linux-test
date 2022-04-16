@@ -128,7 +128,8 @@ def getJdkMajorVersion() {
 
 enum DistributionType {
     JDK("", "OpenJDK Development Kit"),
-    JRE("jre", "OpenJDK Runtime Environment")
+    JRE("jre", "OpenJDK Runtime Environment"),
+    JDK_MARINER("mariner", "OpenJDK Development Kit")
 
     private final String suffix
 
