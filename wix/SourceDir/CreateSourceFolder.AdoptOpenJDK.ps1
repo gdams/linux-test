@@ -23,7 +23,7 @@ Get-ChildItem -Path .\ -Filter *.zip -File -Name| ForEach-Object {
   $jvm = "hotspot"
 
   # Windows Architecture supported
-  $platform_regex = "(?<platform>x86-32|x64|aarch64)"
+  $platform_regex = "(?<platform>x86|x64|aarch64)"
   $platform_found = $filename -match $platform_regex
   if (!$platform_found) {
     Write-Output "filename : $filename doesn't match regex $platform_regex"
