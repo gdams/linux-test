@@ -123,6 +123,16 @@ if [ $TYPE == "jre" ]; then
     /usr/libexec/PlistBuddy -c "Add :JavaVM:JVMCapabilities:0 string CommandLine" "${INPUT_DIRECTORY}/Contents/Info.plist"
 fi
 
+# Ensures that ARCHITECTURE is valid to avoid incorrectly compiled PKGs
+case $ARCHITECTURE in
+  x86_64) ;;
+  arm64) ;;
+  *)
+    echo "Unknown architecture: $ARCHITECTURE"
+    exit 1
+    ;;
+esac
+
 case $JVM in
   openj9)
     if [ -z "$IDENTIFIER" ]; then
