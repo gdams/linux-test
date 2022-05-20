@@ -15,6 +15,7 @@ tasks.register("buildRedHatRpmPackage", BuildRpmPackage) {
     category = "java"
     dependenciesFile = file("config/jdk-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}/dependencies.txt")
     providesFile = file("config/jdk-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}/provides.txt")
+    recommendsFile = file("config/jdk-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}/recommends.txt")
     prefix = "/usr/lib/jvm"
     afterInstallScript = file("config/jdk-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}/postinst.sh")
     beforeRemoveScript = file("config/jdk-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}/prerm.sh")

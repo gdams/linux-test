@@ -76,6 +76,10 @@ public abstract class AbstractBuildLinuxPackage extends DefaultTask {
 
     private File providesFile;
 
+    private Set<String> recommends;
+
+    private File recommendsFile;
+
     private String prefix;
 
     private File afterInstallScript;
@@ -267,6 +271,26 @@ public abstract class AbstractBuildLinuxPackage extends DefaultTask {
     }
 
     @Input
+    @Optional
+    public Set<String> getRecommends() {
+        return recommends;
+    }
+
+    public void setRecommends(Set<String> recommends) {
+        this.recommends = recommends;
+    }
+
+    @InputFile
+    @Optional
+    public File getRecommendsFile() {
+        return recommendsFile;
+    }
+
+    public void setRecommendsFile(File recommendsFile) {
+        this.recommendsFile = recommendsFile;
+    }
+
+    @Input
     public String getPrefix() {
         return prefix;
     }
@@ -358,6 +382,19 @@ public abstract class AbstractBuildLinuxPackage extends DefaultTask {
             collectedProvides.addAll(readSet(providesFile));
         }
         return collectedProvides;
+    }
+
+    Set<String> collectRecommends() {
+        Set<String> collectedRecommends = new LinkedHashSet<>();
+        if (getRecommends() != null) {
+            collectedRecommends.addAll(getRecommends());
+        }
+        if (recommendsFile != null) {
+            String recommends = readTemplate(recommendsFile, this.templateContext());
+            InputStream inStream = new ByteArrayInputStream(recommends.getBytes(StandardCharsets.UTF_8));
+            collectedRecommends.addAll(readSet(inStream));
+        }
+        return collectedRecommends;
     }
 
     /**

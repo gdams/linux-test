@@ -134,6 +134,9 @@ public class BuildDebianPackage extends AbstractBuildLinuxPackage {
         for (String providesEntry : collectProvides()) {
             arguments.add(String.format("--provides=%s", providesEntry));
         }
+        for (String recommend : collectRecommends()) {
+            arguments.add(String.format("--deb-recommends=%s", recommend));
+        }
 
         return arguments;
     }

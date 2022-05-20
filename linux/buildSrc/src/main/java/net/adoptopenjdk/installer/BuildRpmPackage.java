@@ -90,7 +90,10 @@ public class BuildRpmPackage extends AbstractBuildLinuxPackage {
         for (String providesEntry : collectProvides()) {
             arguments.add(String.format("--provides=%s", providesEntry));
         }
-
+        for (String recommend : collectRecommends()) {
+            arguments.add(String.format("--rpm-tag=Recommends: %s", recommend));
+        }
+        
         arguments.add("--rpm-os=linux");
         arguments.add(String.format("--directories=%s/%s", getPrefix(), getJdkDirectoryName()));
         return arguments;
