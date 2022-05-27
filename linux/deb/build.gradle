@@ -12,6 +12,7 @@ ext.jinfoPriorities = [
     15: 1151,
     16: 1161,
     17: 1171,
+    19: 1191,
 ]
 
 tasks.register("buildDebianPackage", BuildDebianPackage) {
