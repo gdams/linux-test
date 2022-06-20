@@ -1,4 +1,5 @@
-FROM opensuse/leap:15.2
+ARG IMAGE
+FROM ${IMAGE}
 
 RUN zypper update -y && zypper install -y rpm-build rpm-devel rpmdevtools rpmlint gpg2 wget tar dpkg findutils tini
 
