@@ -38,7 +38,8 @@ ext {
         license     : "GPL-2.0+CE",
         maintainer  : getVendor(),
         vendor      : getVendor(),
-        packageName : "${getPackageName()}-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}"
+        // packageName : "${getPackageName()}-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}"
+        packageName : getFullPackageName(jdkDistributionType, jdkMajorVersion)
     ]
     artifactory = [
         url       : "https://adoptopenjdk.jfrog.io/adoptopenjdk/",
@@ -69,6 +70,14 @@ tasks.register("upload") {
     group = "upload"
     description = "Uploads all linux packages"
     dependsOn uploadRpmPackage
+}
+
+def getFullPackageName(jdkDistributionType, jdkMajorVersion){
+    // if the package name has mariner then omit from full package name
+    if ("${jdkDistributionType.pkgNameSuffix}" == "-mariner"){
+        return "${getPackageName()}-${jdkMajorVersion}"
+    }
+    return "${getPackageName()}-${jdkMajorVersion}${jdkDistributionType.pkgNameSuffix}"
 }
 
 def getDebianIteration () {
