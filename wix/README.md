@@ -24,8 +24,8 @@ call powershell.exe ./CreateSourceFolder.AdoptOpenJDK.ps1
   SET PRODUCT_MINOR_VERSION=0
   SET PRODUCT_MAINTENANCE_VERSION=2
   SET PRODUCT_PATCH_VERSION=8
-  SET ARCH=x64|x86|arm64 or all "x64 x86 arm64"
-  SET JVM=hotspot|openj9|dragonwell or both JVM=hotspot openj9
+  SET ARCH=x64|x86 or both "x64 x86"
+  SET JVM=hotspot|openj9 or both JVM=hotspot openj9
   SET PRODUCT_CATEGORY=jre|jdk (only one at a time)
   cmd /c Build.OpenJDK_generic.cmd
   ```
@@ -78,7 +78,7 @@ msiexec /i OpenJDK8-jdk_xxx.msi INSTALLLEVEL=2
 - FeatureEnvironment (PATH)
 - FeatureJavaHome (JAVA_HOME)
 - FeatureJarFileRunWith (associate .jar)
-- FeatureOracleJavaSoft (Registry keys HKLM\SOFTWARE\JavaSoft\) (break Oracle java start launch from PATH when Adoptium is uninstalled, reinstall Oracle if needed to restore Oracle registry keys) (Only available for admin users / machine setup ( normal users can't write to HKLM ))
+- FeatureOracleJavaSoft (Registry keys HKLM\SOFTWARE\JavaSoft\) (break Oracle java start launch from PATH when AdoptOpenJDK is uninstalled, reinstall Oracle if needed to restore Oracle registry keys) (Only available for admin users / machine setup ( normal users can't write to HKLM ))
 - FeatureIcedTeaWeb (Install IcedTea-Web)
 - FeatureJNLPFileRunWith (associate .jnlp with IcedTea-Web javaws.exe)
 
@@ -129,6 +129,7 @@ msiexec /i OpenJDK11-jdk_x64_windows_hotspot-11.0.3.9.msi REINSTALL=ALL /quiet
 msiexec /i OpenJDK11-jdk_x64_windows_hotspot-11.0.3.9.msi REINSTALL=ALL REINSTALLMODE=amus /quiet
 ```
 
+
 ## MSI upgrade limitation
 
 Upgradable MSI work only for first 3 digit from the build number (due to MSI limitation) : [Details](https://docs.microsoft.com/fr-fr/windows/desktop/Msi/productversion)
@@ -142,7 +143,8 @@ Upgradable MSI work only for first 3 digit from the build number (due to MSI lim
 
 Log files created by `msiexec.exe` help diagnosing problems with our MSI installers.
 
-If you are installing an Adoptium MSI using the command line, pass `/l*v %temp%\Adoptium-MSI.log` to write a log to `%temp%\Adoptium-MSI.log`. Example command:
+If you are installing an AdoptOpenJDK MSI using the command line, pass `/l*v %temp%\AdoptOpenJDK-MSI.log` to write a log to `%temp%\AdoptOpenJDK-MSI.log`. Example command:
+
 
 ```cmd
 C:\WINDOWS\System32\msiexec.exe /i "C:\Users\Administrator\Downloads\OpenJDK11U-jdk_x64_windows_hotspot_11.0.6_10.msi" MSIINSTALLPERUSER=1 INSTALLDIR="C:\Users\Administrator\AppData\Local\Programs\Adoptium" ADDLOCAL=FeatureJavaHome,FeatureEnvironment,FeatureJarFileRunWith /passive /l*v %temp%\Adoptium-MSI.log

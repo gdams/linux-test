@@ -1,0 +1,9 @@
+/bin/sh
+/usr/sbin/alternatives
+ca-certificates
+libc.so.6()({{rpmIsaBits}})
+libdl.so.2()({{rpmIsaBits}})
+libm.so.6()({{rpmIsaBits}})
+libpthread.so.0()({{rpmIsaBits}})
+libthread_db.so.1()({{rpmIsaBits}})
+libz.so.1()({{rpmIsaBits}})

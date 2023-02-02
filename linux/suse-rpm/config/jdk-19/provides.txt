@@ -1,0 +1,14 @@
+java
+java-19
+java-19-devel
+java-19-openjdk
+java-19-openjdk-devel
+java-devel
+java-openjdk
+java-openjdk-devel
+java-sdk-19
+java-sdk-19-openjdk
+jre
+jre-19
+jre-19-openjdk
+jre-openjdk
