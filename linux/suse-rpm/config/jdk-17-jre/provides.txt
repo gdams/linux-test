@@ -1,8 +1,0 @@
-java
-java-17
-java-17-openjdk
-java-openjdk
-jre
-jre-17
-jre-17-openjdk
-jre-openjdk

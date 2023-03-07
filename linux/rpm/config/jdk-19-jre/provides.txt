@@ -1,8 +1,0 @@
-java
-java-19
-java-19-openjdk
-java-openjdk
-jre
-jre-19
-jre-19-openjdk
-jre-openjdk

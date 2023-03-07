@@ -1,4 +1,0 @@
-ca-certificates
-java-common
-libc6
-zlib1g
