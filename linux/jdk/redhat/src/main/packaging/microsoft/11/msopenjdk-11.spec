@@ -67,7 +67,7 @@
 %global sha_src_num 1
 %endif
 
-Name:        temurin-11-jdk
+Name:        msopenjdk-11
 Version:     %{spec_version}
 Release:     %{spec_release}
 Summary:     Eclipse Temurin 11 JDK
