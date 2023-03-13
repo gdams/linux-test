@@ -1,11 +1,11 @@
-Source: temurin-11-jdk
+Source: msopenjdk-11
 Section: java
 Priority: optional
-Maintainer: Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org>
+Maintainer: Microsoft Package Maintainers <java-eng@microsoft.com>
 Build-Depends: debhelper (>= 11), lsb-release
 
-Package: temurin-11-jdk
-Architecture: amd64 armhf arm64 ppc64el s390x
+Package: msopenjdk-11
+Architecture: amd64 arm64
 Depends: adoptium-ca-certificates,
          java-common,
          libasound2,
@@ -57,6 +57,6 @@ Provides: java-compiler,
           java7-runtime-headless,
           java8-runtime-headless,
           java9-runtime-headless
-Description: Eclipse Temurin 11 JDK
- Eclipse Temurin JDK is an OpenJDK-based development environment to create
+Description: Microsoft 11 JDK
+ Microsoft JDK is an OpenJDK-based development environment to create
  applications and components using the programming language Java.
