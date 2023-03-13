@@ -8,82 +8,42 @@
 %global spec_release 3
 %global priority 1111
 
-%global source_url_base https://github.com/adoptium/temurin11-binaries/releases/download
-%global upstream_version_url %(echo %{upstream_version} | sed 's/\+/%%2B/g')
-%global upstream_version_no_plus %(echo %{upstream_version} | sed 's/\+/_/g')
+%global source_url_base https://aka.ms/download-jdk
+%global upstream_version_url %(echo %{upstream_version} | cut -d+ -f1) # upstream_version before the '+'
 %global java_provides openjdk
 
 # Map architecture to the expected value in the download URL; Allow for a
 # pre-defined value of vers_arch and use that if it's defined
 
-%ifarch x86_64
 %global vers_arch x64
-%global vers_arch2 ppc64le
-%global vers_arch3 s390x
-%global vers_arch4 aarch64
-%global vers_arch5 arm
+%global vers_arch2 aarch64
+
+%ifarch x86_64
 %global src_num 0
 %global sha_src_num 1
-%endif
-%ifarch ppc64le
-%global vers_arch x64
-%global vers_arch2 ppc64le
-%global vers_arch3 s390x
-%global vers_arch4 aarch64
-%global vers_arch5 arm
-%global src_num 2
-%global sha_src_num 3
-%endif
-%ifarch s390x
-%global vers_arch x64
-%global vers_arch2 ppc64le
-%global vers_arch3 s390x
-%global vers_arch4 aarch64
-%global vers_arch5 arm
-%global src_num 4
-%global sha_src_num 5
 %endif
 %ifarch aarch64
-%global vers_arch x64
-%global vers_arch2 ppc64le
-%global vers_arch3 s390x
-%global vers_arch4 aarch64
-%global vers_arch5 arm
-%global src_num 6
-%global sha_src_num 7
-%endif
-%ifarch %{arm}
-%global vers_arch x64
-%global vers_arch2 ppc64le
-%global vers_arch3 s390x
-%global vers_arch4 aarch64
-%global vers_arch5 arm
-%global src_num 8
-%global sha_src_num 9
-%endif
-# Allow for noarch SRPM build
-%ifarch noarch
-%global src_num 0
-%global sha_src_num 1
+%global src_num 2
+%global sha_src_num 3
 %endif
 
 Name:        msopenjdk-11
 Version:     %{spec_version}
 Release:     %{spec_release}
-Summary:     Eclipse Temurin 11 JDK
-# Make below cosnitent with 
+Summary:     Microsoft 11 JDK
+
 Group:       java
 License:     GPLv2 with exceptions
 Vendor:      Microsoft
-URL:         https://projects.eclipse.org/projects/adoptium
-Packager:    Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org>
+URL:         https://docs.microsoft.com/java
+Packager:    Microsoft Package Maintainers <java-eng@microsoft.com>
 
 AutoReqProv: no
 Prefix: /usr/lib/jvm/%{name}
 
 BuildRequires:  tar
 BuildRequires:  wget
-# Check if below needs changing
+# Check with George/Martijn if below needs changing ##############
 Requires: /bin/sh
 Requires: /usr/sbin/alternatives
 Requires: ca-certificates
@@ -98,48 +58,28 @@ Requires: glibc%{?_isa}
 Requires: zlib%{?_isa}
 Requires: fontconfig%{?_isa}
 Requires: freetype%{?_isa}
-# Check against existing spec file
+# Below is equal to msft provides.txt ###############
 Provides: java
 Provides: java-11
 Provides: java-11-devel
-Provides: java-11-headless
 Provides: java-11-%{java_provides}
 Provides: java-11-%{java_provides}-devel
-Provides: java-11-%{java_provides}-headless
 Provides: java-devel
-Provides: java-devel-%{java_provides}
-Provides: java-headless
 Provides: java-%{java_provides}
 Provides: java-%{java_provides}-devel
-Provides: java-%{java_provides}-headless
-Provides: java-sdk
 Provides: java-sdk-11
 Provides: java-sdk-11-%{java_provides}
-Provides: java-sdk-%{java_provides}
 Provides: jre
 Provides: jre-11
-Provides: jre-11-headless
 Provides: jre-11-%{java_provides}
-Provides: jre-11-%{java_provides}-headless
-Provides: jre-headless
 Provides: jre-%{java_provides}
-Provides: jre-%{java_provides}-headless
 
 # First architecture (x86_64)
-Source0: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK11U-jdk_%{vers_arch}_linux_hotspot_%{upstream_version_no_plus}.tar.gz
-Source1: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK11U-jdk_%{vers_arch}_linux_hotspot_%{upstream_version_no_plus}.tar.gz.sha256.txt
-# Second architecture (ppc64le)
-Source2: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK11U-jdk_%{vers_arch2}_linux_hotspot_%{upstream_version_no_plus}.tar.gz
-Source3: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK11U-jdk_%{vers_arch2}_linux_hotspot_%{upstream_version_no_plus}.tar.gz.sha256.txt
-# Third architecture (s390x)
-Source4: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK11U-jdk_%{vers_arch3}_linux_hotspot_%{upstream_version_no_plus}.tar.gz
-Source5: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK11U-jdk_%{vers_arch3}_linux_hotspot_%{upstream_version_no_plus}.tar.gz.sha256.txt
-# Fourth architecture (aarch64)
-Source6: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK11U-jdk_%{vers_arch4}_linux_hotspot_%{upstream_version_no_plus}.tar.gz
-Source7: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK11U-jdk_%{vers_arch4}_linux_hotspot_%{upstream_version_no_plus}.tar.gz.sha256.txt
-# Fifth architecture (arm32)
-Source8: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK11U-jdk_%{vers_arch5}_linux_hotspot_%{upstream_version_no_plus}.tar.gz
-Source9: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK11U-jdk_%{vers_arch5}_linux_hotspot_%{upstream_version_no_plus}.tar.gz.sha256.txt
+Source0: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch}.tar.gz
+Source1: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch}.tar.gz.sha256sum.txt
+# Second architecture (aarch64)
+Source2: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch2}.tar.gz
+Source3: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch2}.tar.gz.sha256.txt
 
 # Set the compression format to xz to be compatible with more Red Hat flavours. Newer versions of Fedora use zstd which
 # is not available on CentOS 7, for example. https://github.com/rpm-software-management/rpm/blob/master/macros.in#L353
@@ -150,9 +90,9 @@ Source9: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK11U-jdk_%{vers_ar
 # Avoid build failures on some distros due to missing build-id in binaries.
 %global debug_package %{nil}
 %global __brp_strip %{nil}
-# Chagne this ###################
+############## Check below with Bruno
 %description
-Eclipse Temurin JDK is an OpenJDK-based development environment to create
+Microsoft JDK is an OpenJDK-based development environment to create
 applications and components using the programming language Java.
 
 %prep
@@ -169,7 +109,7 @@ popd
 mkdir -p %{buildroot}%{prefix}
 cd %{buildroot}%{prefix}
 tar --strip-components=1 -C "%{buildroot}%{prefix}" -xf %{expand:%{SOURCE%{src_num}}}
-# Check if ew do below today or not #################
+# Check if we do below today or not (We seem to use this library today?) #################
 # Strip bundled Freetype and use OS package instead.
 rm -f "%{buildroot}%{prefix}/lib/libfreetype.so"
 # Check below ############################
@@ -262,21 +202,5 @@ fi
 /usr/lib/tmpfiles.d/%{name}.conf
 # Make below specific 
 %changelog
-* Wed Feb 22 2023 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 11.0.18.0.0.10-3.adopt0
-- Eclipse Temurin 11.0.18+10 release 3.
-* Wed Jan 18 2023 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 11.0.18.0.0.10.adopt0
-- Eclipse Temurin 11.0.18+10 release.
-* Thu Oct 25 2022 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 11.0.17.0.0.8.adopt0
-- Eclipse Temurin 11.0.17+8 release.
-* Tue Aug 23 2022 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 11.0.16.1.0.1.adopt0
-- Eclipse Temurin 11.0.16.1+1 release.
-* Tue Jul 26 2022 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 11.0.16.0.0.8.adopt0
-- Eclipse Temurin 11.0.16.0+8 release.
-* Wed Apr 27 2022 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 11.0.15.0.0.10.adopt0
-- Eclipse Temurin 11.0.15.0+10 release.
-* Thu Feb 10 2022 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 11.0.14.1.0.1-1.adopt0
-- Eclipse Temurin 11.0.14.1+1 release.
-* Tue Feb 1 2022 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 11.0.14.0.0.9-1.adopt0
-- Eclipse Temurin 11.0.14+9 release.
-* Tue Aug 10 2021 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 11.0.12.0.0.7-1.adopt0
-- Eclipse Temurin 11.0.12+7 release.
+* Fri Mar 10 2023 Microsoft Package Maintainers <java-eng@microsoft.com> 11.0.18.0.0.10-3
+- Microsoft 11.0.18+10 initial release.

@@ -8,75 +8,35 @@
 %global spec_release 3
 %global priority 1161
 
-%global source_url_base https://github.com/adoptium/temurin17-binaries/releases/download
-%global upstream_version_url %(echo %{upstream_version} | sed 's/\+/%%2B/g')
-%global upstream_version_no_plus %(echo %{upstream_version} | sed 's/\+/_/g')
+%global source_url_base https://aka.ms/download-jdk
+%global upstream_version_url %(echo %{upstream_version} | cut -d+ -f1) # upstream_version before the '+'
 %global java_provides openjdk
 
 # Map architecture to the expected value in the download URL; Allow for a
 # pre-defined value of vers_arch and use that if it's defined
 
-%ifarch x86_64
 %global vers_arch x64
-%global vers_arch2 ppc64le
-%global vers_arch3 s390x
-%global vers_arch4 aarch64
-%global vers_arch5 arm
+%global vers_arch2 aarch64
+
+%ifarch x86_64
 %global src_num 0
 %global sha_src_num 1
 %endif
-%ifarch ppc64le
-%global vers_arch x64
-%global vers_arch2 ppc64le
-%global vers_arch3 s390x
-%global vers_arch4 aarch64
-%global vers_arch5 arm
+%ifarch aarch64
 %global src_num 2
 %global sha_src_num 3
 %endif
-%ifarch s390x
-%global vers_arch x64
-%global vers_arch2 ppc64le
-%global vers_arch3 s390x
-%global vers_arch4 aarch64
-%global vers_arch5 arm
-%global src_num 4
-%global sha_src_num 5
-%endif
-%ifarch aarch64
-%global vers_arch x64
-%global vers_arch2 ppc64le
-%global vers_arch3 s390x
-%global vers_arch4 aarch64
-%global vers_arch5 arm
-%global src_num 6
-%global sha_src_num 7
-%endif
-%ifarch %{arm}
-%global vers_arch x64
-%global vers_arch2 ppc64le
-%global vers_arch3 s390x
-%global vers_arch4 aarch64
-%global vers_arch5 arm
-%global src_num 8
-%global sha_src_num 9
-%endif
-# Allow for noarch SRPM build
-%ifarch noarch
-%global src_num 0
-%global sha_src_num 1
-%endif
 
-Name:        temurin-17-jdk
+Name:        msopenjdk-17
 Version:     %{spec_version}
 Release:     %{spec_release}
-Summary:     Eclipse Temurin 17 JDK
+Summary:     Microsoft 17 JDK
 
 Group:       java
 License:     GPLv2 with exceptions
 Vendor:      Eclipse Adoptium
-URL:         https://projects.eclipse.org/projects/adoptium
-Packager:    Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org>
+URL:         https://docs.microsoft.com/java
+Packager:    Microsoft Package Maintainers <java-eng@microsoft.com>
 
 AutoReqProv: no
 Prefix: /usr/lib/jvm/%{name}
@@ -102,44 +62,24 @@ Requires: freetype%{?_isa}
 Provides: java
 Provides: java-17
 Provides: java-17-devel
-Provides: java-17-headless
 Provides: java-17-%{java_provides}
 Provides: java-17-%{java_provides}-devel
-Provides: java-17-%{java_provides}-headless
 Provides: java-devel
-Provides: java-devel-%{java_provides}
-Provides: java-headless
 Provides: java-%{java_provides}
 Provides: java-%{java_provides}-devel
-Provides: java-%{java_provides}-headless
-Provides: java-sdk
 Provides: java-sdk-17
 Provides: java-sdk-17-%{java_provides}
-Provides: java-sdk-%{java_provides}
 Provides: jre
 Provides: jre-17
-Provides: jre-17-headless
 Provides: jre-17-%{java_provides}
-Provides: jre-17-%{java_provides}-headless
-Provides: jre-headless
 Provides: jre-%{java_provides}
-Provides: jre-%{java_provides}-headless
 
 # First architecture (x86_64)
-Source0: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK17U-jdk_%{vers_arch}_linux_hotspot_%{upstream_version_no_plus}.tar.gz
-Source1: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK17U-jdk_%{vers_arch}_linux_hotspot_%{upstream_version_no_plus}.tar.gz.sha256.txt
-# Second architecture (ppc64le)
-Source2: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK17U-jdk_%{vers_arch2}_linux_hotspot_%{upstream_version_no_plus}.tar.gz
-Source3: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK17U-jdk_%{vers_arch2}_linux_hotspot_%{upstream_version_no_plus}.tar.gz.sha256.txt
-# Third architecture (s390x)
-Source4: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK17U-jdk_%{vers_arch3}_linux_hotspot_%{upstream_version_no_plus}.tar.gz
-Source5: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK17U-jdk_%{vers_arch3}_linux_hotspot_%{upstream_version_no_plus}.tar.gz.sha256.txt
-# Fourth architecture (aarch64)
-Source6: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK17U-jdk_%{vers_arch4}_linux_hotspot_%{upstream_version_no_plus}.tar.gz
-Source7: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK17U-jdk_%{vers_arch4}_linux_hotspot_%{upstream_version_no_plus}.tar.gz.sha256.txt
-# Fifth architecture (arm32)
-Source8: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK17U-jdk_%{vers_arch5}_linux_hotspot_%{upstream_version_no_plus}.tar.gz
-Source9: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK17U-jdk_%{vers_arch5}_linux_hotspot_%{upstream_version_no_plus}.tar.gz.sha256.txt
+Source0: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch}.tar.gz
+Source1: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch}.tar.gz.sha256sum.txt
+# Second architecture (aarch64)
+Source2: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch2}.tar.gz
+Source3: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch2}.tar.gz.sha256.txt
 
 # Set the compression format to xz to be compatible with more Red Hat flavours. Newer versions of Fedora use zstd which
 # is not available on CentOS 7, for example. https://github.com/rpm-software-management/rpm/blob/master/macros.in#L353
@@ -152,7 +92,7 @@ Source9: %{source_url_base}/jdk-%{upstream_version_url}/OpenJDK17U-jdk_%{vers_ar
 %global __brp_strip %{nil}
 
 %description
-Eclipse Temurin JDK is an OpenJDK-based development environment to create
+Microsoft JDK is an OpenJDK-based development environment to create
 applications and components using the programming language Java.
 
 %prep
@@ -259,19 +199,5 @@ fi
 /usr/lib/tmpfiles.d/%{name}.conf
 
 %changelog
-* Wed Feb 22 2023 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 17.0.6.0.0.10-3.adopt0
-- Eclipse Temurin 17.0.6+10 release 3.
-* Wed Jan 18 2023 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 17.0.6.0.0.10.adopt0
-- Eclipse Temurin 17.0.6+10 release.
-* Thu Oct 25 2022 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 17.0.5.0.0.8.adopt0
-- Eclipse Temurin 17.0.5+8 release.
-* Tue Aug 23 2022 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 17.0.4.1.0.1.adopt0
-- Eclipse Temurin 17.0.4.1+8 release.
-* Wed Jul 27 2022 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 17.0.4.0.0.8.adopt0
-- Eclipse Temurin 17.0.4+8 release.
-* Wed Apr 27 2022 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 17.0.3.0.0.7.adopt0
-- Eclipse Temurin 17.0.3+7 release.
-* Tue Feb 1 2022 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 17.0.2.0.0.8-1.adopt0
-- Eclipse Temurin 17.0.2+8 release.
-* Fri Aug 13 2021 Eclipse Adoptium Package Maintainers <temurin-dev@eclipse.org> 17.0.0.0.0.35-1.adopt0
-- Eclipse Temurin 17.0.0+35 release.
+* Fri Mar 10 2023 Microsoft Package Maintainers <java-eng@microsoft.com> 17.0.6.0.0.10
+- Microsoft 17.0.6+10 initial release.
