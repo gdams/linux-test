@@ -62,8 +62,8 @@ jobs:
         image_type: [JDK]
         distro: [Debian, RedHat]
         product: [
-          { name: microsoft, version: 11, arch: x86_64 aarch64 },
-          { name: microsoft, version: 17, arch: x86_64 aarch64 }
+          { name: microsoft, version: 11, arch: x86_64 },
+          { name: microsoft, version: 17, arch: x86_64 }
         ]
 
     steps:
