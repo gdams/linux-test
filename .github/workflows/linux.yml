@@ -59,13 +59,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image_type: [JDK, JRE]
-        distro: [Alpine, Debian, RedHat, Suse]
+        image_type: [JDK]
+        distro: [Debian, RedHat]
         product: [
-          { name: temurin, version: 8 },
-          { name: temurin, version: 11 },
-          { name: temurin, version: 17 },
-          { name: temurin, version: 19 }
+          { name: microsoft, version: 11, arch: x86_64 aarch64 },
+          { name: microsoft, version: 17, arch: x86_64 aarch64 }
         ]
 
     steps:
