@@ -81,7 +81,7 @@ jobs:
         run: |
           export _JAVA_OPTIONS="-Xmx4G"
           export DOCKER_BUILDKIT=1
-          ./gradlew --parallel package$( echo "${{ matrix.image_type }}" | tr [DKRE] [dkre] )${{ matrix.distro }} check${{ matrix.image_type }}${{ matrix.distro }} -PPRODUCT=${{ matrix.product.name }} -PPRODUCT_VERSION=${{ matrix.product.version }} --stacktrace
+          ./gradlew --parallel package$( echo "${{ matrix.image_type }}" | tr [DKRE] [dkre] )${{ matrix.distro }} check${{ matrix.image_type }}${{ matrix.distro }} -PPRODUCT=${{ matrix.product.name }} -PPRODUCT_VERSION=${{ matrix.product.version }} -PARCH=${{ matrix.product.arch }} --stacktrace
 
       - name: Relocate test results
         if: always() # always run even if the previous step fails
