@@ -9,7 +9,8 @@
 %global priority 1111
 
 %global source_url_base https://aka.ms/download-jdk
-%global upstream_version_url %(echo %{upstream_version} | cut -d+ -f1) # upstream_version before the '+'
+%global upstream_version_url %(echo %{upstream_version} | cut -d+ -f1)
+# Above is upstream_version before the '+'
 %global java_provides openjdk
 
 # Map architecture to the expected value in the download URL; Allow for a
