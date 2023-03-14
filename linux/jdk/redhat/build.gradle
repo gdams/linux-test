@@ -111,7 +111,6 @@ task checkJdkRedHat(type: Test) {
 	classpath = sourceSets.packageTest.runtimeClasspath
 
 	def product = getProduct()
-
 	def productVersion = getProductVersion()
 	def gpgKey = getGPGKey()
 	def arch = getArch()

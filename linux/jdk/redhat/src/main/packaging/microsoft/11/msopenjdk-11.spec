@@ -80,7 +80,7 @@ Source0: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_a
 Source1: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch}.tar.gz.sha256sum.txt
 # Second architecture (aarch64)
 Source2: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch2}.tar.gz
-Source3: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch2}.tar.gz.sha256.txt
+Source3: %{source_url_base}/microsoft-jdk-%{upstream_version_url}-linux-%{vers_arch2}.tar.gz.sha256sum.txt
 
 # Set the compression format to xz to be compatible with more Red Hat flavours. Newer versions of Fedora use zstd which
 # is not available on CentOS 7, for example. https://github.com/rpm-software-management/rpm/blob/master/macros.in#L353
