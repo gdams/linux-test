@@ -107,9 +107,15 @@ task checkJdkDebian(type: Test) {
 	classpath = sourceSets.packageTest.runtimeClasspath
 
 	def product = getProduct()
+
 	def productVersion = getProductVersion()
 
-	environment "PACKAGE", "${product}-${productVersion}-jdk"
+	// If product is microsoft set it as msopenjdk
+	if (product == "microsoft") {
+		environment "PACKAGE", "msopenjdk-$productVersion"
+	} else {
+		environment "PACKAGE", "$product-$productVersion-jdk"
+	}
 
 	useJUnitPlatform()
 	testLogging {
